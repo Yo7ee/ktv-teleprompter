@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
 import { cn } from '@/lib/utils'
 import { songArtClass, songGlowClass } from '@/lib/songPalette'

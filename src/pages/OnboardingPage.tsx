@@ -4,13 +4,11 @@ import {
   MicrophoneIcon,
   SpeakerWaveIcon,
   DevicePhoneMobileIcon,
-  HandRaisedIcon,
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/button'
 import { OnboardingStep } from '@/components/organisms/OnboardingStep'
 import { StepDots } from '@/components/molecules/StepDots'
-import { useSettingsStore } from '@/stores/settingsStore'
 
 const STEPS = [
   {
@@ -42,7 +40,6 @@ const STEPS = [
 export function OnboardingPage() {
   const [step, setStep] = useState(0)
   const navigate = useNavigate()
-  const { settings } = useSettingsStore()
   const isLast = step === STEPS.length - 1
 
   const handleDone = () => {
