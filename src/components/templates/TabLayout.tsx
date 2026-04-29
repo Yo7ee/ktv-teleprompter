@@ -33,7 +33,7 @@ export function TabLayout() {
       <nav
         role="tablist"
         aria-label="主要導覽"
-        className="shrink-0 flex bg-app-surface border-t border-app-rim pb-safe"
+        className="shrink-0 flex bg-app-surface border-t border-app-rim"
       >
         {TABS.map(({ to, label, Icon }) => (
           <NavLink
@@ -59,6 +59,7 @@ export function TabLayout() {
           </NavLink>
         ))}
       </nav>
+      <div className="shrink-0 bg-app-surface h-safe-bottom" />
     </div>
   )
 }
