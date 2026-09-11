@@ -1,16 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { WifiIcon } from '@heroicons/react/24/outline'
 import { SearchBar } from '@/components/molecules/SearchBar'
 import { SongList } from '@/components/organisms/SongList'
 import { useSongStore } from '@/stores/songStore'
-import { usePlayerStore } from '@/stores/playerStore'
 import type { Song } from '@/types/song'
 
 export function LibraryPage() {
   const [query, setQuery] = useState('')
   const { songs, removeSong } = useSongStore()
-  const { setCurrentSong } = usePlayerStore()
   const navigate = useNavigate()
 
   const filtered = query
@@ -18,24 +15,13 @@ export function LibraryPage() {
     : songs
 
   const handleSelect = (song: Song) => {
-    const cached = songs.find((s) => s.id === song.id)
-    if (!cached) return
-    setCurrentSong(cached)
     navigate(`/player/${song.id}`)
   }
 
   return (
     <div className="page-root">
       <header className="px-5 pt-2.5 pb-2 border-b border-app-rim shrink-0">
-        <div className="flex items-center justify-between mb-2.5">
-          <h1 tabIndex={-1} className="page-title outline-none">KTV 提詞機</h1>
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-app-muted bg-app-faint px-2 py-0.5 rounded-lg" aria-label="目前為離線模式">
-              離線模式
-            </span>
-            <WifiIcon className="w-3.5 h-3.5 text-app-accent-a" aria-hidden="true" />
-          </div>
-        </div>
+        <h1 tabIndex={-1} className="page-title outline-none mb-2.5">KTV 提詞機</h1>
         <SearchBar
           value={query}
           onChange={setQuery}

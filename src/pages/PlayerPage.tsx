@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useParams, Navigate } from 'react-router'
 import { cn } from '@/lib/utils'
 import { songArtClass, songGlowClass } from '@/lib/songPalette'
 import { DevicePhoneMobileIcon } from '@heroicons/react/24/outline'
@@ -13,6 +13,8 @@ import { LoadingStep } from '@/components/molecules/LoadingStep'
 import { usePlayer } from '@/hooks/usePlayer'
 import { usePlayerStore } from '@/stores/playerStore'
 import { useSettingsStore } from '@/stores/settingsStore'
+import { useSongStore } from '@/stores/songStore'
+import type { CachedSong } from '@/types/song'
 
 type Phase = 'loading' | 'ready'
 
@@ -22,20 +24,40 @@ function fmt(s: number) {
   return `${m}:${sec.toString().padStart(2, '0')}`
 }
 
-const LOADING_STEPS = ['讀取離線快取…', '解析歌詞時間軸…', '準備語音提示…']
+const LOADING_STEPS = ['讀取本機歌詞…', '解析歌詞時間軸…', '準備語音提示…']
 
+// 網址上的 songId 是唯一真相，所以這個路由可以被直接開啟、也能重新整理。
+// songStore 由 zustand persist 同步還原，第一次 render 就拿得到歌。
 export function PlayerPage() {
+  const { songId } = useParams()
+  const { songs } = useSongStore()
+
+  const song = songs.find((s) => s.id === Number(songId))
+
+  // 沒下載過、已被刪除、或網址亂打 —— 一律回歌曲列表
+  if (!song) return <Navigate to="/library" replace />
+
+  // key 讓換歌時整個播放器重新掛載，載入動畫與碼表都重來一次
+  return <PlayerView key={song.id} song={song} />
+}
+
+function PlayerView({ song }: { song: CachedSong }) {
   const navigate = useNavigate()
-  const { currentSong } = usePlayerStore()
   const { settings } = useSettingsStore()
 
   const [phase, setPhase] = useState<Phase>('loading')
   const [loadPhase, setLoadPhase] = useState(0)
   const mainRef = useRef<HTMLDivElement>(null)
 
+  const player = usePlayer(song, settings)
+
+  // 碼表存在全域 store，進場先歸零以免沿用上一首的進度
+  useEffect(() => {
+    usePlayerStore.getState().reset()
+  }, [])
+
   // Simulate loading steps then transition to ready
   useEffect(() => {
-    if (!currentSong) return
     const iv = setInterval(
       () => setLoadPhase((p) => Math.min(p + 1, LOADING_STEPS.length - 1)),
       550,
@@ -46,15 +68,7 @@ export function PlayerPage() {
       setTimeout(() => mainRef.current?.focus(), 50)
     }, 1800)
     return () => { clearInterval(iv); clearTimeout(t) }
-  }, [currentSong])
-
-  const player = usePlayer(currentSong!, settings)
-
-
-  if (!currentSong) {
-    navigate('/library', { replace: true })
-    return null
-  }
+  }, [])
 
   const nextSec = player.nextLine
     ? Math.max(0, Math.ceil(player.nextLine.time - player.elapsed))
@@ -66,22 +80,22 @@ export function PlayerPage() {
       <div
         className="page-root items-center justify-center gap-6 px-7"
         role="status"
-        aria-label={`正在載入 ${currentSong.title}`}
+        aria-label={`正在載入 ${song.title}`}
         aria-live="polite"
       >
         <div
           className={cn(
             'w-[88px] h-[88px] rounded-[18px] flex items-center justify-center text-4xl',
-            songArtClass(currentSong.id),
-            songGlowClass(currentSong.id),
+            songArtClass(song.id),
+            songGlowClass(song.id),
           )}
           aria-hidden="true"
         >
-          {currentSong.albumArt}
+          {song.albumArt}
         </div>
         <div className="text-center">
-          <p className="page-title mb-1">{currentSong.title}</p>
-          <p className="text-app-muted text-xs">{currentSong.artist}</p>
+          <p className="page-title mb-1">{song.title}</p>
+          <p className="text-app-muted text-xs">{song.artist}</p>
         </div>
         <Spinner />
         <div className="flex flex-col gap-2.5 w-full">
@@ -92,9 +106,6 @@ export function PlayerPage() {
               state={i < loadPhase ? 'done' : i === loadPhase ? 'active' : 'pending'}
             />
           ))}
-        </div>
-        <div className="bg-app-elev border border-app-rim rounded-lg px-3.5 py-1.5">
-          <span className="text-[10px] text-app-faint">📦 離線快取 · 無需網路</span>
         </div>
       </div>
     )
@@ -107,8 +118,8 @@ export function PlayerPage() {
     >
       <div aria-live="assertive" aria-atomic="true" className="sr-only">{player.announcement}</div>
       <PageHeader
-        title={currentSong.title}
-        subtitle={currentSong.artist}
+        title={song.title}
+        subtitle={song.artist}
         onBack={() => navigate('/library')}
         backLabel="返回歌曲列表"
       />
@@ -144,13 +155,13 @@ export function PlayerPage() {
       <div className="px-5 pb-1.5 shrink-0">
         <ProgressBar
           value={player.elapsed}
-          max={currentSong.duration}
-          label={`播放進度 ${fmt(player.elapsed)} 共 ${fmt(currentSong.duration)}`}
+          max={song.duration}
+          label={`播放進度 ${fmt(player.elapsed)} 共 ${fmt(song.duration)}`}
           onChange={player.seek}
         />
         <div className="flex justify-between mt-1" aria-hidden="true">
           <span className="text-[10px] text-app-faint">{fmt(player.elapsed)}</span>
-          <span className="text-[10px] text-app-faint">{fmt(currentSong.duration)}</span>
+          <span className="text-[10px] text-app-faint">{fmt(song.duration)}</span>
         </div>
       </div>
 
