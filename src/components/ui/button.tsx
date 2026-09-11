@@ -55,4 +55,7 @@ function Button({
   )
 }
 
-export { Button, buttonVariants }
+// buttonVariants 僅供本檔內部使用，不 export —— 同時 export 元件與非元件會讓
+// Fast Refresh 失效（react-refresh/only-export-components）。將來若有別處要用，
+// 再把它移到獨立檔案，不要直接加回這裡的 export。
+export { Button }
