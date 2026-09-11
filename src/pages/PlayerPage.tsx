@@ -169,7 +169,7 @@ function PlayerView({ song }: { song: CachedSong }) {
       <PlayerControls
         playing={player.playing}
         onTogglePlay={player.togglePlay}
-        onReset={player.reset}
+        onCalibrate={player.calibrate}
       />
     </div>
   )

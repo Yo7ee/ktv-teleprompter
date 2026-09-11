@@ -1,8 +1,6 @@
 import { useNavigate } from 'react-router'
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
-import { Switch } from '@/components/ui/switch'
 import { SettingRow } from '@/components/molecules/SettingRow'
 import { SettingsGroup } from '@/components/organisms/SettingsGroup'
 import { PageHeader } from '@/components/templates/PageHeader'
@@ -23,37 +21,21 @@ export function SettingsPage() {
       />
 
       <div className="flex-1 overflow-y-auto px-5 py-3 flex flex-col gap-3">
-        <SettingsGroup title="語音提示 (TTS)">
-          <SettingRow label="啟用語音提示" description="透過耳機預讀歌詞" htmlFor="tts-toggle">
-            <Switch
-              id="tts-toggle"
-              checked={settings.tts}
-              onCheckedChange={(v) => setSetting('tts', v)}
-              aria-label="啟用語音提示"
-              className="data-[state=checked]:bg-app-accent"
+        <SettingsGroup title="歌詞提示">
+          <SettingRow
+            label="提前秒數"
+            stacked
+            value={`${settings.advance}s`}
+          >
+            <Slider
+              min={1}
+              max={12}
+              step={1}
+              value={settings.advance}
+              onValueChange={(val) => setSetting('advance', val as number)}
+              aria-label={`提前秒數，目前 ${settings.advance} 秒`}
+              className="w-full"
             />
-          </SettingRow>
-
-          <SettingRow label="提前秒數">
-            <div role="radiogroup" aria-label="提前秒數" className="flex gap-1.5">
-              {[1, 2, 3, 4].map((n) => (
-                <Button
-                  key={n}
-                  role="radio"
-                  aria-checked={settings.advance === n}
-                  aria-label={`${n} 秒`}
-                  onClick={() => setSetting('advance', n)}
-                  className={cn(
-                    'h-8 w-9 rounded-lg text-[11px] font-bold border',
-                    settings.advance === n
-                      ? 'bg-app-accent text-white border-app-accent hover:bg-app-accent/90'
-                      : 'bg-app-bg text-app-muted border-app-rim hover:bg-app-elev',
-                  )}
-                >
-                  {n}s
-                </Button>
-              ))}
-            </div>
           </SettingRow>
         </SettingsGroup>
 
@@ -75,8 +57,8 @@ export function SettingsPage() {
           </SettingRow>
         </SettingsGroup>
 
-        <SettingsGroup title="離線資料">
-          <SettingRow label="快取歌曲" description="已離線儲存">
+        <SettingsGroup title="已下載歌曲">
+          <SettingRow label="快取歌曲">
             <span className="text-app-accent-g text-[13px] font-bold">{songs.length} 首</span>
           </SettingRow>
           <div className="px-5 py-2.5">

@@ -14,23 +14,19 @@ interface UsePlayerReturn {
   curIdx: number
   togglePlay: () => void
   seek: (t: number) => void
-  reset: () => void
-  ttsActive: boolean
-  announcedText: string
+  calibrate: () => void
   announcement: string
   hapticActive: boolean
 }
 
 export function usePlayer(song: CachedSong, settings: Settings): UsePlayerReturn {
-  const { playing, elapsed, setPlaying, setElapsed, reset: storeReset } = usePlayerStore()
+  const { playing, elapsed, setPlaying, setElapsed } = usePlayerStore()
   const { say, announcement } = useAnnounce()
-  const { vibrate, isSupported: hapticSupported } = useHaptic()
+  const { vibrate } = useHaptic()
 
   const spokenRef = useRef<Record<number, boolean>>({})
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const [ttsActive, setTtsActive] = useState(false)
-  const [announcedText, setAnnouncedText] = useState('')
   const [hapticActive, setHapticActive] = useState(false)
 
   const lyrics = song.lyrics
@@ -43,32 +39,28 @@ export function usePlayer(song: CachedSong, settings: Settings): UsePlayerReturn
   // Announce + haptic trigger on each tick
   useEffect(() => {
     if (!playing) return
-    const { advance, tts, haptic } = settings
+    const { advance, haptic } = settings
 
-    lyrics.forEach((line, i) => {
-      const triggerAt = line.time - advance
-      if (
-        elapsed >= triggerAt &&
-        elapsed < triggerAt + 0.5 &&
-        !spokenRef.current[i]
-      ) {
-        spokenRef.current[i] = true
+    // 找出第一句「已到提詞時間、但還沒開唱」且尚未播報的歌詞。
+    // 用區間 [time - advance, time) 而不是觸發點後的固定視窗：advance 大於句距時
+    // 校正跳轉才不會整句漏掉，也不再綁死在 500ms 的 tick 上。
+    // 一次只播一句，避免多句擠進同一個 aria-live 區塊互相蓋掉。
+    const idx = lyrics.findIndex(
+      (line, i) =>
+        !spokenRef.current[i] && elapsed >= line.time - advance && elapsed < line.time,
+    )
+    if (idx === -1) return
 
-        if (tts) {
-          say(line.text)
-          setAnnouncedText(line.text)
-          setTtsActive(true)
-          setTimeout(() => { setTtsActive(false); setAnnouncedText('') }, 2200)
-        }
+    const line = lyrics[idx]
+    spokenRef.current[idx] = true
+    say(line.text)
 
-        if (line.type === 'interlude' && haptic) {
-          vibrate([120, 60, 120])
-          setHapticActive(true)
-          setTimeout(() => setHapticActive(false), 700)
-        }
-      }
-    })
-  }, [elapsed, playing, settings, lyrics, say, vibrate, hapticSupported])
+    if (line.type === 'interlude' && haptic) {
+      vibrate([120, 60, 120])
+      setHapticActive(true)
+      setTimeout(() => setHapticActive(false), 700)
+    }
+  }, [elapsed, playing, settings, lyrics, say, vibrate])
 
   // Timer loop
   useEffect(() => {
@@ -93,14 +85,26 @@ export function usePlayer(song: CachedSong, settings: Settings): UsePlayerReturn
     const next = !playing
     setPlaying(next)
     if (next) spokenRef.current = {}
-    if (settings.tts) say(next ? '開始' : '暫停')
-  }, [playing, setPlaying, settings, say])
+    say(next ? '開始' : '暫停')
+  }, [playing, setPlaying, say])
 
-  const reset = useCallback(() => {
-    storeReset()
+  // 使用者在聽到某句歌詞開唱的瞬間按下校正。那一刻音樂的真實位置，就是 App 還沒
+  // 走到、正等著提詞的「下一句」的 time，所以直接把計時器推到那裡。之後每一句的
+  // 提詞時間等於整批往前平移了 drift 秒，而 advance 的提前量原封不動保留下來。
+  const calibrate = useCallback(() => {
+    const now = usePlayerStore.getState().elapsed
+    const anchor = lyrics.find((l) => l.time > now)
+    if (!anchor) {
+      say('已經沒有後續歌詞可校正')
+      return
+    }
+
+    const drift = anchor.time - now
     spokenRef.current = {}
-    if (settings.tts) say('重置')
-  }, [storeReset, settings, say])
+    setElapsed(Math.min(anchor.time, song.duration))
+    if (settings.haptic) vibrate(40)
+    say(`已校正，快轉 ${Number.isInteger(drift) ? drift : drift.toFixed(1)} 秒`)
+  }, [lyrics, setElapsed, song.duration, say, settings.haptic, vibrate])
 
   const seek = useCallback((t: number) => {
     spokenRef.current = {}
@@ -116,9 +120,7 @@ export function usePlayer(song: CachedSong, settings: Settings): UsePlayerReturn
     curIdx,
     togglePlay,
     seek,
-    reset,
-    ttsActive,
-    announcedText,
+    calibrate,
     announcement,
     hapticActive,
   }

@@ -1,23 +1,23 @@
-import { PlayIcon, PauseIcon, ArrowPathIcon } from '@heroicons/react/24/solid'
+import { PlayIcon, PauseIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/solid'
 import { Button } from '@/components/ui/button'
 
 interface PlayerControlsProps {
   playing: boolean
   onTogglePlay: () => void
-  onReset: () => void
+  onCalibrate: () => void
 }
 
-export function PlayerControls({ playing, onTogglePlay, onReset }: PlayerControlsProps) {
+export function PlayerControls({ playing, onTogglePlay, onCalibrate }: PlayerControlsProps) {
   return (
     <div className="flex items-center gap-2 px-5 pb-3 pt-2">
       <Button
         variant="ghost"
-        onClick={onReset}
-        aria-label="重置回到開頭"
+        onClick={onCalibrate}
+        aria-label="校正時間軸，聽到歌詞開唱時按下"
         className="btn-control"
       >
-        <ArrowPathIcon className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-        重置
+        <AdjustmentsHorizontalIcon className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+        校正
       </Button>
 
       <Button
