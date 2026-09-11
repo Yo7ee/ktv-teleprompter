@@ -1,5 +1,4 @@
-// navigator.vibrate is not supported on iOS Safari.
-// isSupported lets callers show a visual fallback instead.
+// navigator.vibrate is not supported on iOS Safari, where vibrate() no-ops.
 const isSupported =
   typeof navigator !== 'undefined' && 'vibrate' in navigator
 
@@ -10,5 +9,5 @@ export function useHaptic() {
     return true
   }
 
-  return { vibrate, isSupported }
+  return { vibrate }
 }

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/atoms/Badge'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import { songArtClass } from '@/lib/songPalette'
 import type { Song } from '@/types/song'
@@ -40,7 +39,6 @@ export function SongRow({ song, onSelect, onDelete }: SongRowProps) {
           <p className="text-app-text text-sm font-semibold truncate">{song.title}</p>
           <p className="song-meta">{song.artist}</p>
         </div>
-        <Badge variant="offline">離線</Badge>
       </button>
 
       {onDelete && (

@@ -28,7 +28,6 @@ export const useSettingsStore = create<SettingsStore>()(
         return {
           ...current,
           settings: {
-            tts:       sanitize(saved.tts,       DEFAULT_SETTINGS.tts),
             advance:   sanitize(saved.advance,   DEFAULT_SETTINGS.advance),
             haptic:    sanitize(saved.haptic,    DEFAULT_SETTINGS.haptic),
             hapticBeat:sanitize(saved.hapticBeat,DEFAULT_SETTINGS.hapticBeat),

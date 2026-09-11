@@ -26,14 +26,14 @@ const STEPS = [
   {
     icon: <DevicePhoneMobileIcon className="w-9 h-9 text-app-accent" />,
     title: '震動提示間奏',
-    body: '遇到間奏或前奏時，手機會震動提示（Android），iOS 顯示視覺閃爍，讓你知道何時暫停、何時繼續。',
-    aria: '功能二：震動提示。遇到間奏時手機震動或畫面閃爍提醒。',
+    body: '遇到間奏或前奏時，手機會震動提示，讓你知道何時暫停、何時繼續。（震動僅 Android 裝置支援）',
+    aria: '功能二：震動提示。遇到間奏時手機震動提醒，此功能僅 Android 裝置支援。',
   },
   {
     icon: <ArrowDownTrayIcon className="w-9 h-9 text-app-accent" />,
     title: '事先下載歌詞',
-    body: '在有網路的地方先下載歌詞。進入 KTV 包廂後，沒有網路也能完美使用。',
-    aria: '功能四：離線使用。事先下載歌詞，包廂內無需網路。',
+    body: '在有網路的地方先把歌詞下載下來，進包廂之前就準備好。',
+    aria: '功能四：事先下載。在有網路的地方先把歌詞下載下來。',
   },
 ]
 

@@ -2,12 +2,11 @@ import { cn } from '@/lib/utils'
 
 interface BadgeProps {
   children: React.ReactNode
-  variant?: 'offline' | 'cached' | 'default'
+  variant?: 'cached' | 'default'
   className?: string
 }
 
 const variants = {
-  offline: 'bg-app-accent-g/20 text-app-accent-g',
   cached: 'bg-app-accent-g/20 text-app-accent-g',
   default: 'bg-app-faint text-app-muted',
 }

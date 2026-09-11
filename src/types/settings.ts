@@ -1,5 +1,4 @@
 export interface Settings {
-  tts: boolean
   advance: number
   haptic: boolean
   hapticBeat: boolean
@@ -7,8 +6,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  tts: true,
-  advance: 3,
+  advance: 5,
   haptic: true,
   hapticBeat: false,
   fontSize: 24,

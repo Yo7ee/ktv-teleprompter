@@ -101,9 +101,6 @@ export function DownloadPage() {
             <ArrowDownTrayIcon className="w-10 h-10 text-app-faint" aria-hidden="true" />
             <p className="text-[13px] text-app-muted text-center leading-relaxed">
               輸入歌名或歌手搜尋
-              <span className="block text-[11px] text-app-faint mt-1">
-                下載後可在無網路環境離線使用
-              </span>
             </p>
           </div>
         )}
