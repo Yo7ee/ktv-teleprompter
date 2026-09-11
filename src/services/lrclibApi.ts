@@ -29,25 +29,24 @@ export async function searchSongs(query: string): Promise<Song[]> {
   const res = await fetch(`${BASE}/search?q=${encodeURIComponent(query)}`)
   if (!res.ok) throw new Error('Search failed')
   const data: LrclibTrack[] = await res.json()
-  return data.slice(0, 20).map((t) => ({
-    id: t.id,
-    title: t.name,
-    artist: t.artistName,
-    duration: Math.round(t.duration),
-    albumArt: '🎵',
-  }))
+  return data
+    .filter((t) => Boolean(t.syncedLyrics))
+    .slice(0, 20)
+    .map((t) => ({
+      id: t.id,
+      title: t.name,
+      artist: t.artistName,
+      duration: Math.round(t.duration),
+      albumArt: '🎵',
+    }))
 }
 
 export async function getLyrics(trackId: number): Promise<LyricLine[]> {
   const res = await fetch(`${BASE}/get/${trackId}`)
   if (!res.ok) throw new Error('Lyrics fetch failed')
   const data: LrclibTrack = await res.json()
-  if (data.syncedLyrics) return parseLrc(data.syncedLyrics)
-  if (data.plainLyrics) {
-    return data.plainLyrics
-      .split('\n')
-      .filter(Boolean)
-      .map((text, i) => ({ time: i * 4, text, type: 'lyric' as const }))
-  }
-  return []
+  // searchSongs 已濾掉沒有時間軸的曲目，但這是另一次請求（且回應會被 SW 快取
+  // 30 天），仍可能拿到 null。這個判斷同時也是 parseLrc 需要的型別收窄。
+  if (!data.syncedLyrics) throw new Error('No synced lyrics for this track')
+  return parseLrc(data.syncedLyrics)
 }
