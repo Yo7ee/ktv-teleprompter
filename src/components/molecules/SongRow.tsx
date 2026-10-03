@@ -20,7 +20,7 @@ export function SongRow({ song, onSelect, onDelete }: SongRowProps) {
         onPointerUp={() => { setPressed(false); onSelect(song) }}
         onPointerLeave={() => setPressed(false)}
         onClick={() => onSelect(song)}
-        aria-label={`${song.title}，${song.artist}，已快取，點擊開始演唱`}
+        aria-label={`${song.title}，${song.artist}，點擊開始演唱`}
         className={cn(
           'flex items-center gap-3 py-3 flex-1 min-w-0 text-left transition-colors duration-100 min-h-[56px]',
           pressed ? 'bg-app-elev' : 'bg-transparent',

@@ -26,7 +26,7 @@ export function DownloadResultList({
   }
 
   return (
-    <ul role="list" aria-label={`找到 ${results.length} 首歌`} className="list-none px-5">
+    <ul role="list" aria-label={`找到 ${results.length} 首歌詞`} className="list-none px-5">
       {results.map((song) => (
         <DownloadRow
           key={song.id}

@@ -35,7 +35,7 @@ export function SearchBar({
         placeholder={placeholder}
         aria-label={label}
         autoFocus={autoFocus}
-        className="flex-1 bg-transparent border-none outline-none text-app-text text-sm placeholder:text-app-faint font-[inherit]"
+        className="flex-1 bg-transparent border-none outline-none text-app-text text-base placeholder:text-app-faint font-[inherit]"
       />
     </div>
   )

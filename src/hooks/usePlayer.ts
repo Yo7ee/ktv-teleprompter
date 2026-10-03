@@ -53,7 +53,8 @@ export function usePlayer(song: CachedSong, settings: Settings): UsePlayerReturn
 
     const line = lyrics[idx]
     spokenRef.current[idx] = true
-    say(line.text)
+    // LRC 的間奏標記多半是 ♪♪♪ 或 (間奏)，螢幕閱讀器可能直接跳過，統一念固定文案
+    say(line.type === 'interlude' ? '間奏' : line.text)
 
     if (line.type === 'interlude' && haptic) {
       vibrate([120, 60, 120])

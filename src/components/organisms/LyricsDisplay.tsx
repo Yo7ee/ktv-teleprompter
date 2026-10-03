@@ -25,7 +25,7 @@ export function LyricsDisplay({ curLine, nextLine, prevLine, fontSize }: LyricsD
       {curLine ? (
         <LyricCard line={curLine} role="current" fontSize={fontSize} />
       ) : (
-        <div className="w-full bg-[oklch(0.18_0.14_260/0.55)] border border-[oklch(0.5_0.18_260/0.4)] rounded-2xl px-6 py-4 text-center">
+        <div aria-hidden="true" className="w-full bg-[oklch(0.18_0.14_260/0.55)] border border-[oklch(0.5_0.18_260/0.4)] rounded-2xl px-6 py-4 text-center">
           <p className={cn('text-app-text font-bold', FONT_SIZE_CLASS[fontSize] ?? 'text-2xl')}>—</p>
         </div>
       )}

@@ -11,6 +11,7 @@ import type { Song } from '@/types/song'
 
 export function DownloadPage() {
   const [query, setQuery] = useState('')
+  const [searchedQuery, setSearchedQuery] = useState('')
   const [results, setResults] = useState<Song[]>([])
   const [searching, setSearching] = useState(false)
   const [searched, setSearched] = useState(false)
@@ -21,14 +22,20 @@ export function DownloadPage() {
   const cachedIds = new Set(songs.map((s) => s.id))
 
   const handleSearch = async () => {
-    if (!query.trim()) return
+    const q = query.trim()
+    if (!q || searching) return
+    setSearchedQuery(q)
+    setQuery('')
     setSearching(true)
     setSearched(false)
+    say('正在查詢歌詞')
     try {
-      const data = await searchSongs(query)
+      const data = await searchSongs(q)
       setResults(data)
+      say(data.length ? `找到 ${data.length} 首歌詞` : `找不到「${q}」的歌詞`)
     } catch {
       setResults([])
+      say('查詢失敗，請檢查網路後再試')
     } finally {
       setSearching(false)
       setSearched(true)
@@ -77,12 +84,11 @@ export function DownloadPage() {
               onChange={setQuery}
               onSubmit={handleSearch}
               placeholder="搜尋歌曲名稱或歌手…"
-              label="搜尋 LRCLIB 歌詞庫"
+              label="搜尋歌名或歌手"
             />
           </div>
           <Button
             onClick={handleSearch}
-            disabled={!query.trim() || searching}
             aria-label="搜尋"
             className="bg-app-accent text-white text-[13px] font-bold px-4 rounded-xl min-h-[44px]"
           >
@@ -91,7 +97,7 @@ export function DownloadPage() {
         </div>
         <div className="flex items-center gap-1.5 mt-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-app-accent-g" aria-hidden="true" />
-          <span className="text-[10px] text-app-faint">LRCLIB 開源歌詞資料庫</span>
+          <span className="text-[10px] text-app-faint">開源歌詞資料庫</span>
         </div>
       </header>
 
@@ -107,16 +113,16 @@ export function DownloadPage() {
 
         {searching && (
           <div className="flex flex-col items-center justify-center h-full gap-3.5">
-            <Spinner label="正在查詢 LRCLIB" />
-            <p className="text-app-muted text-[13px]">正在查詢 LRCLIB…</p>
+            <Spinner label="正在查詢歌詞" />
+            <p className="text-app-muted text-[13px]" aria-hidden="true">正在查詢歌詞</p>
           </div>
         )}
 
         {searched && !searching && (
           <>
-            <div className="px-5 pt-2.5 pb-1" aria-live="polite">
+            <div className="px-5 pt-2.5 pb-1">
               <span className="label-section">
-                找到 {results.length} 首歌
+                找到 {results.length} 首歌詞
               </span>
             </div>
             <DownloadResultList
@@ -124,7 +130,7 @@ export function DownloadPage() {
               cachedIds={cachedIds}
               downloadProgress={downloadProgress}
               onDownload={handleDownload}
-              query={query}
+              query={searchedQuery}
             />
           </>
         )}

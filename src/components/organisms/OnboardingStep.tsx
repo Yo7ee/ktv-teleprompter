@@ -1,11 +1,9 @@
 import { useEffect, useRef } from 'react'
-import { useAnnounce } from '@/hooks/useAnnounce'
 
 interface StepData {
   icon: React.ReactNode
   title: string
   body: string
-  aria: string
 }
 
 interface OnboardingStepProps {
@@ -14,16 +12,13 @@ interface OnboardingStepProps {
 
 export function OnboardingStep({ step }: OnboardingStepProps) {
   const headRef = useRef<HTMLHeadingElement>(null)
-  const { say, announcement } = useAnnounce()
-
+  // 只移焦點、不另外播報：焦點落在標題時螢幕閱讀器自然會念，再加 aria-live 會重複或互相打斷
   useEffect(() => {
     headRef.current?.focus()
-    say(step.aria)
-  }, [step, say])
+  }, [step])
 
   return (
     <div className="flex flex-col items-center gap-5 px-7 text-center">
-      <div aria-live="assertive" aria-atomic="true" className="sr-only">{announcement}</div>
       <div
         className="w-20 h-20 rounded-full flex items-center justify-center icon-circle-accent"
         aria-hidden="true"

@@ -14,7 +14,7 @@ export function StepDots({ total, current, onSelect }: StepDotsProps) {
           key={i}
           role="tab"
           aria-selected={i === current}
-          aria-label={`第 ${i + 1} 步，共 ${total} 步`}
+          aria-label={`步驟 ${i + 1}，共 ${total} 步`}
           onClick={() => onSelect(i)}
           className="rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center"
         >

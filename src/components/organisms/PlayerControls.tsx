@@ -23,7 +23,6 @@ export function PlayerControls({ playing, onTogglePlay, onCalibrate }: PlayerCon
       <Button
         onClick={onTogglePlay}
         aria-label={playing ? '暫停' : '播放'}
-        aria-pressed={playing}
         className="w-[54px] h-[54px] rounded-full shrink-0 btn-gradient-play"
       >
         {playing ? (

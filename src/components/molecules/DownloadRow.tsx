@@ -1,6 +1,5 @@
-import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
+import { ArrowDownTrayIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/atoms/Badge'
 import { ProgressBar } from '@/components/atoms/ProgressBar'
 import type { Song } from '@/types/song'
 
@@ -37,7 +36,10 @@ export function DownloadRow({ song, isCached, downloadProgress, onDownload }: Do
         </div>
         <div className="shrink-0">
           {isCached ? (
-            <Badge variant="cached">已快取</Badge>
+            <span className="flex items-center gap-1 text-app-accent-g text-xs font-semibold">
+              <CheckIcon className="w-3.5 h-3.5" aria-hidden="true" />
+              已下載
+            </span>
           ) : isDownloading ? (
             <span className="text-app-muted text-xs font-semibold tabular-nums">
               {Math.round(downloadProgress)}%

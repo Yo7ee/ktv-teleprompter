@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router'
 import {
   MicrophoneIcon,
   SpeakerWaveIcon,
-  DevicePhoneMobileIcon,
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/button'
@@ -14,26 +13,17 @@ const STEPS = [
   {
     icon: <MicrophoneIcon className="w-9 h-9 text-app-accent" />,
     title: '歡迎使用\nKTV 提詞機',
-    body: '專為視障者設計的 KTV 演唱輔助工具。透過語音提示與震動回饋，讓你完全自主掌控演唱節奏。',
-    aria: '歡迎使用 KTV 提詞機。這是專為視障者設計的演唱輔助工具。',
+    body: '專為視障者設計的 KTV 演唱輔助工具。透過語音提示，讓你完全自主掌控演唱節奏。',
   },
   {
     icon: <SpeakerWaveIcon className="w-9 h-9 text-app-accent" />,
     title: '語音預報歌詞',
     body: '演唱前 2 秒，耳機會自動播報下一句歌詞，讓你提前準備，從容開口。',
-    aria: '功能一：語音預報。演唱前 2 秒自動播報下一句歌詞。',
-  },
-  {
-    icon: <DevicePhoneMobileIcon className="w-9 h-9 text-app-accent" />,
-    title: '震動提示間奏',
-    body: '遇到間奏或前奏時，手機會震動提示，讓你知道何時暫停、何時繼續。（震動僅 Android 裝置支援）',
-    aria: '功能二：震動提示。遇到間奏時手機震動提醒，此功能僅 Android 裝置支援。',
   },
   {
     icon: <ArrowDownTrayIcon className="w-9 h-9 text-app-accent" />,
     title: '事先下載歌詞',
     body: '在有網路的地方先把歌詞下載下來，進包廂之前就準備好。',
-    aria: '功能四：事先下載。在有網路的地方先把歌詞下載下來。',
   },
 ]
 
@@ -80,7 +70,7 @@ export function OnboardingPage() {
       <div className="px-5 pb-8">
         <Button
           onClick={() => (isLast ? handleDone() : setStep((s) => s + 1))}
-          aria-label={isLast ? '開始使用' : `繼續，前往第 ${step + 2} 步`}
+          aria-label={isLast ? '開始使用' : `繼續，前往步驟 ${step + 2}`}
           className="w-full py-3.5 rounded-2xl text-white text-base font-bold btn-gradient-accent"
         >
           {isLast ? '開始使用' : '繼續'}
