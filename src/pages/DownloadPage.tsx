@@ -120,7 +120,8 @@ export function DownloadPage() {
 
         {searched && !searching && (
           <>
-            <div className="px-5 pt-2.5 pb-1">
+            {/* 搜尋完成時已用 say() 播報數量，這裡只給視覺看 */}
+            <div className="px-5 pt-2.5 pb-1" aria-hidden="true">
               <span className="label-section">
                 找到 {results.length} 首歌詞
               </span>
