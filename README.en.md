@@ -220,7 +220,7 @@ Accessibility is the whole point of this project, so tread carefully:
 
 - Prompts reach the screen reader through an `aria-live="assertive"` region; every visual lyric card is `aria-hidden`.
 - Every tappable target is at least 44×44px.
-- Focus moves to the heading after navigation, and to the lyrics region once the player finishes loading.
+- Focus moves to the heading after navigation, and to the song title heading when the player opens.
 - Interludes trigger a vibration, but `navigator.vibrate` is Android-only — on iOS it fails silently and there is currently no substitute cue.
 - Dark theme throughout (`index.html` hardcodes `class="dark"`); lyric font size is adjustable from 16 to 32px.
 - iOS safe areas are handled via `viewport-fit=cover` and `env(safe-area-inset-*)`.

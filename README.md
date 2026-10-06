@@ -220,7 +220,7 @@ src/
 
 - 提詞透過 `aria-live="assertive"` 區塊送給螢幕閱讀器，視覺歌詞卡片一律 `aria-hidden`。
 - 所有可點擊元素至少 44×44px。
-- 換頁後自動聚焦標題，播放頁載入完成後聚焦歌詞區。
+- 換頁後自動聚焦標題，進入播放頁時聚焦歌名標題。
 - 間奏會震動提示，但 `navigator.vibrate` 僅 Android 支援，iOS 上會靜默失敗且目前沒有替代提示。
 - 全站深色配色（`index.html` 直接掛 `class="dark"`），歌詞字級 16–32px 可調。
 - 支援 iOS safe area（`viewport-fit=cover` + `env(safe-area-inset-*)`）。
