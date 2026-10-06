@@ -4,11 +4,13 @@ interface ProgressBarProps {
   value: number
   max: number
   label: string
+  valueText?: string
+  step?: number
   onChange?: (value: number) => void
   className?: string
 }
 
-export function ProgressBar({ value, max, label, onChange, className }: ProgressBarProps) {
+export function ProgressBar({ value, max, label, valueText, step = 1, onChange, className }: ProgressBarProps) {
   if (onChange) {
     const pct = max > 0 ? (value / max) * 100 : 0
     return (
@@ -17,9 +19,10 @@ export function ProgressBar({ value, max, label, onChange, className }: Progress
           type="range"
           min={0}
           max={max}
-          step={0.5}
+          step={step}
           value={value}
           aria-label={label}
+          aria-valuetext={valueText}
           onChange={(e) => onChange(Number(e.target.value))}
           className="absolute inset-0 w-full opacity-0 cursor-pointer z-10 h-full"
         />

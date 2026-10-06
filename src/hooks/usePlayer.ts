@@ -12,8 +12,9 @@ interface UsePlayerReturn {
   nextLine: LyricLine | undefined
   prevLine: LyricLine | undefined
   curIdx: number
+  waitingIdx: number
   togglePlay: () => void
-  seek: (t: number) => void
+  seekLine: (idx: number) => void
   calibrate: () => void
   announcement: string
   hapticActive: boolean
@@ -26,6 +27,9 @@ export function usePlayer(song: CachedSong, settings: Settings): UsePlayerReturn
 
   const spokenRef = useRef<Record<number, boolean>>({})
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // 碼表的時間原點（Date.now 毫秒）：elapsed = (現在 - 原點) / 1000。
+  // 用牆上時鐘換算而不是每個 tick 累加，計時器被延遲或暫停（鎖螢幕、切背景）也不會漂移。
+  const originRef = useRef(0)
 
   const [hapticActive, setHapticActive] = useState(false)
 
@@ -35,6 +39,9 @@ export function usePlayer(song: CachedSong, settings: Settings): UsePlayerReturn
   const curLine = lyrics[curIdx]
   const nextLine = lyrics[curIdx + 1]
   const prevLine = curIdx > 0 ? lyrics[curIdx - 1] : undefined
+  // 碼表正在等的那一句（還沒開唱），也就是按校正時會對齊的錨點。全部唱完時停在最後一句
+  const nextIdx = lyrics.findIndex((l) => l.time > elapsed)
+  const waitingIdx = nextIdx === -1 ? lyrics.length - 1 : nextIdx
 
   // Announce + haptic trigger on each tick
   useEffect(() => {
@@ -63,17 +70,27 @@ export function usePlayer(song: CachedSong, settings: Settings): UsePlayerReturn
     }
   }, [elapsed, playing, settings, lyrics, say, vibrate])
 
+  // 跳到指定秒數，並同步移動時間原點，讓計時器從新位置接著算
+  const jumpTo = useCallback((t: number) => {
+    const clamped = Math.max(0, Math.min(t, song.duration))
+    originRef.current = Date.now() - clamped * 1000
+    setElapsed(clamped)
+  }, [setElapsed, song.duration])
+
   // Timer loop
   useEffect(() => {
     if (playing) {
+      // 開始或續播：以目前的 elapsed 回推原點，暫停期間的時間不算進去
+      originRef.current = Date.now() - usePlayerStore.getState().elapsed * 1000
       timerRef.current = setInterval(() => {
-        const { elapsed: prev } = usePlayerStore.getState()
-        if (prev >= song.duration) {
+        const now = (Date.now() - originRef.current) / 1000
+        if (now >= song.duration) {
+          setElapsed(song.duration)
           setPlaying(false)
         } else {
-          setElapsed(prev + 0.5)
+          setElapsed(now)
         }
-      }, 500)
+      }, 250)
     } else {
       if (timerRef.current) clearInterval(timerRef.current)
     }
@@ -102,15 +119,21 @@ export function usePlayer(song: CachedSong, settings: Settings): UsePlayerReturn
 
     const drift = anchor.time - now
     spokenRef.current = {}
-    setElapsed(Math.min(anchor.time, song.duration))
+    jumpTo(anchor.time)
     if (settings.haptic) vibrate(40)
     say(`已校正，快轉 ${Number.isInteger(drift) ? drift : drift.toFixed(1)} 秒`)
-  }, [lyrics, setElapsed, song.duration, say, settings.haptic, vibrate])
+  }, [lyrics, jumpTo, say, settings.haptic, vibrate])
 
-  const seek = useCallback((t: number) => {
+  // 以句為單位跳轉：把碼表放在這一句的提詞時間點，讓它馬上被念出來，
+  // 同時成為「正在等的那一句」，使用者聽到它開唱時按校正就能對齊。
+  // 下限取上一句的開唱時間，避免 advance 大於句距時碼表退回上一句、等待目標跟著變。
+  const seekLine = useCallback((idx: number) => {
+    const line = lyrics[idx]
+    if (!line) return
+    const floor = idx > 0 ? lyrics[idx - 1].time : 0
     spokenRef.current = {}
-    setElapsed(Math.max(0, Math.min(t, song.duration)))
-  }, [setElapsed, song.duration])
+    jumpTo(Math.max(floor, line.time - settings.advance))
+  }, [lyrics, jumpTo, settings.advance])
 
   return {
     playing,
@@ -119,8 +142,9 @@ export function usePlayer(song: CachedSong, settings: Settings): UsePlayerReturn
     nextLine,
     prevLine,
     curIdx,
+    waitingIdx,
     togglePlay,
-    seek,
+    seekLine,
     calibrate,
     announcement,
     hapticActive,

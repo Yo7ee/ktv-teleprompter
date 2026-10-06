@@ -70,6 +70,10 @@ function PlayerView({ song }: { song: CachedSong }) {
     return () => { clearInterval(iv); clearTimeout(t) }
   }, [])
 
+  const lineCount = song.lyrics.length
+  const waitingLine = song.lyrics[player.waitingIdx]
+  const waitingText = waitingLine?.type === 'interlude' ? '間奏' : waitingLine?.text
+
   const nextSec = player.nextLine
     ? Math.max(0, Math.ceil(player.nextLine.time - player.elapsed))
     : 0
@@ -154,10 +158,11 @@ function PlayerView({ song }: { song: CachedSong }) {
       {/* Progress */}
       <div className="px-5 pb-1.5 shrink-0">
         <ProgressBar
-          value={player.elapsed}
-          max={song.duration}
-          label={`播放進度 ${fmt(player.elapsed)} 共 ${fmt(song.duration)}`}
-          onChange={player.seek}
+          value={player.waitingIdx}
+          max={Math.max(lineCount - 1, 0)}
+          label="歌詞位置"
+          valueText={`${waitingText ?? ''}，第 ${player.waitingIdx + 1} 句`}
+          onChange={player.seekLine}
         />
         <div className="flex justify-between mt-1" aria-hidden="true">
           <span className="text-[10px] text-app-faint">{fmt(player.elapsed)}</span>
